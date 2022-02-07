@@ -54,7 +54,7 @@ const AddUser = () => {
             </Box>
 
             {showSuccess && (
-                <Box border={{ color: 'brand', size: 'medium' }} pad="medium">
+                <Box border={{ color: 'brand', size: 'medium' }} pad="medium" margin="medium">
                     <Text color="status-ok"> You have successfully added user. Check your email and verify to activate.</Text>
                 </Box> )}
 

@@ -1,34 +1,32 @@
 import {useNavigate} from "react-router-dom";
 import React, {useEffect} from "react";
-import {Box, Button, FormField, Heading, Text, TextInput} from "grommet";
+import {Box, Button, Form, FormField, Heading, Text, TextInput} from "grommet";
+import {useParams} from "react-router";
+import axios from "axios";
 
 const UpdatePassword = () => {
+    const [value, setValue] = React.useState({});
     const navigate = useNavigate();
-    const [password, setPassword] = React.useState('')
-    const [confirmPassword, setConfirmPassword] = React.useState('')
-    const [match, setMatch] = React.useState(false)
-    const message = "password doesnt match"
+    const params = useParams();
+    const [showLogin, setShowLogin] = React.useState(false)
 
-    const handleReset = () => {
-        setPassword('')
-        setConfirmPassword('')
+    const handleSubmit = (value) => {
+        const input = {
+            id: params.id,
+            password: value.password
+        }
+
+        axios.post(`http://localhost:8080/update`, input)
+            .then(res => {
+               setShowLogin(true)
+            }).catch(err => {
+        })
     }
 
-    const handleSubmit = () => {
-        navigate('/users');
+    const handleClick = () => {
+        navigate('/')
     }
 
-    useEffect(
-        () => {
-            if(password !== '') {
-                if(password === confirmPassword){
-                    setMatch(false)
-                } else {
-                    setMatch(true)
-                }
-            }
-        }, [password, confirmPassword]
-    )
 
     return (
 
@@ -37,31 +35,31 @@ const UpdatePassword = () => {
                 <Heading level={2}> Login </Heading>
             </Box>
             <Box width="medium">
-                <FormField label="Password" name="password" required>
-                    <TextInput
-                        name="password"
-                        type="password"
-                        value={password}
-                        onChange={event => setPassword(event.target.value)}
-                    />
-                </FormField>
-                <FormField label="Confirm Password" name="confpassword" required>
-                    <TextInput
-                        name="confpassword"
-                        type="password"
-                        value={confirmPassword}
-                        onChange={event => setConfirmPassword(event.target.value)}
-                    />
-                </FormField>
-                {match && (<Text color="status-critical">{message}</Text>)}
-                <Box direction="row" justify="between" margin={{ top: 'medium' }}>
-                    <Button type="reset" label="Reset" onClick={handleReset}/>
-                    <Button type="submit" label="Submit" primary onClick={handleSubmit}/>
-                </Box>
+                <Form
+                    value={value}
+                    onChange={nextValue => setValue(nextValue)}
+                    onReset={() => setValue({})}
+                    onSubmit={({ value }) => {handleSubmit(value)}}
+                >
+                    <FormField label="Password" name="password" required>
+                        <TextInput name="password" type="password"/>
+                    </FormField>
+
+                    <Box direction="row" justify="between" margin={{ top: 'medium' }}>
+                        <Button type="reset" label="Reset" />
+                        <Button type="submit" label="Submit" primary/>
+                    </Box>
+
+                </Form>
             </Box>
 
+            {showLogin && (
+                <Box direction="row" justify="center" width="medium">
+                    <Text> Your password has been successfully updated. Click to login </Text>
+                    <Button label="login" primary onClick={() => {handleClick()}}/>
+                </Box>)}
         </Box>
     )
 }
 
-export default UpdatePassword
+export default UpdatePassword;

@@ -1,13 +1,27 @@
-import {Box, Button, FormField, Form, Heading, TextInput} from "grommet";
-import React from "react";
+import {Box, Button, FormField, Form, Heading, TextInput, Text} from "grommet";
+import React, {useContext} from "react";
 import { useNavigate } from 'react-router-dom';
+import axios from "axios";
+import UserContext from "../../context/UserContext";
 
 const Login = () => {
     const navigate = useNavigate();
     const [value, setValue] = React.useState({});
+    const [isError, setIsError] = React.useState(false)
+    const [errMsg, setErrMsg] = React.useState('')
+    const { fetchRole } = useContext(UserContext);
 
     const handleSubmit = (value) => {
-        navigate('/users');
+        axios.post(`http://localhost:8080/login`, value)
+            .then(res => {
+                fetchRole(res.data)
+                navigate('/users');
+            }).catch(err => {
+                setIsError(true)
+                if(err.response) {
+                    setErrMsg(err.response.data)
+                }
+            })
     }
 
     return (
@@ -24,9 +38,9 @@ const Login = () => {
                     onSubmit={({ value }) => {handleSubmit(value)}}
                 >
 
-                    <FormField label="Username" name="username" required>
+                    <FormField label="Username" name="userName" required>
                         <TextInput
-                            name="username"
+                            name="userName"
                             type="email"
                         />
                     </FormField>
@@ -42,6 +56,13 @@ const Login = () => {
                     </Box>
                 </Form>
             </Box>
+
+            {isError && (
+                <Box width="medium" pad="small" margin="small" border={{ color: 'status-critical', size: 'medium' }} justify="center">
+                    <Heading level={4} textAlign="center">Error Occurred!</Heading>
+                    <Text textAlign="center">{errMsg}</Text>
+                </Box>
+            )}
 
         </Box>
     )
